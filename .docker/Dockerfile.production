@@ -1,0 +1,22 @@
+FROM node:18.7.0-alpine3.16
+
+WORKDIR /home/node
+
+# Configs
+COPY .env.example .env
+RUN printf "\n\n" >> .env
+
+RUN --mount=type=secret,id=API_BASE_URL \
+  echo "NEXT_PUBLIC_API_BASE_URL=$(cat /run/secrets/API_BASE_URL)" >> .env
+RUN --mount=type=secret,id=CLIENT_ID \
+  echo "CLIENT_ID=$(cat /run/secrets/CLIENT_ID)" >> .env
+RUN --mount=type=secret,id=CLIENT_SECRET \
+  echo "CLIENT_SECRET=$(cat /run/secrets/CLIENT_SECRET)" >> .env
+
+USER node
+
+COPY --chown=node:node . .
+
+RUN yarn install
+
+CMD [ "yarn", "dev" ]
